@@ -73,10 +73,10 @@ uploadArchives {
 
             // Add required metadata to POM
             pom.project {
-                name 'RabbitMQ Manager'
+                name 'Nifi Api Client Java'
                 packaging 'jar'
-                description 'Convenience class for facilitating some common RabbitMQ tasks.'
-                url 'https://github.com/weibeld/RabbitMQ-Manager'
+                description 'Easy to use api for NIFI REST api'
+                url 'https://github.com/samuel-davis/ossrh'
 
                 scm {
                     connection 'scm:git:git://github.com/samuel-davis/ossrh.git'
