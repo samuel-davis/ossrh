@@ -1,5 +1,6 @@
 *.class
 
+gradle.properties
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
@@ -21,3 +22,5 @@ target
 build
 
 .idea/
+/nifi-api-client-java/pom.xml.releaseBackup
+/nifi-api-client-java/release.properties

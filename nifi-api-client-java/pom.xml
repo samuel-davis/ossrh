@@ -3,7 +3,7 @@
 
 
   <groupId>io.github.samuel-davis</groupId>
-  <version>1.0.3-SNAPSHOT</version>
+  <version>1.0.3</version>
   <artifactId>nifi-api-client-java</artifactId>
   <packaging>jar</packaging>
   <name>nifi-api-client-java</name>
@@ -263,4 +263,37 @@
     <junit-version>4.12</junit-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
+
+
+
+  <profiles>
+    <!-- GPG Signature on release -->
+    <profile>
+      <id>release</id>
+      <activation>
+        <property>
+          <name>performRelease</name>
+          <value>true</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>1.5</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
