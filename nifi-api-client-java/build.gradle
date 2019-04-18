@@ -1,3 +1,17 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        jcenter()
+    }
+}
+plugins {
+    id "com.jfrog.bintray" version "1.7.3"
+    id "maven-publish"
+    id "java"
+}
+
+//https://reflectoring.io/guide-publishing-to-bintray-with-gradle/
+
 apply plugin: 'idea'
 apply plugin: 'eclipse'
 apply plugin: 'java'
@@ -11,6 +25,8 @@ signing {
 apply plugin: 'maven'
 
 // Add Javadoc JAR and sources JAR to artifact
+javadoc.failOnError = false
+
 task javadocJar(type: Jar) {
     classifier = 'javadoc'
     from javadoc
@@ -53,6 +69,92 @@ dependencies {
     compile 'com.google.code.gson:gson:2.6.2'
     compile 'joda-time:joda-time:2.9.3'
     testCompile 'junit:junit:4.12'
+}
+
+
+def pomConfig = {
+    scm {
+        connection 'scm:git:git://github.com/samuel-davis/ossrh.git'
+        developerConnection 'scm:git:git@github.com:samuel-davis/ossrh.git'
+        url 'https://github.com/samuel-davis/ossrh'
+    }
+
+    licenses {
+        license {
+            name 'The Apache License, Version 2.0'
+            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+        }
+    }
+
+    developers {
+        developer {
+            id 'sam'
+            name 'Sam Davis'
+            email 'codehounded@gmail.com'
+            organization 'OpenSource'
+            organizationUrl 'https://samuel-davis.github.io'
+        }
+    }
+
+}
+
+publishing {
+    publications {
+        mavenPublication(MavenPublication) {
+            from components.java
+            artifact sourcesJar {
+                classifier "sources"
+            }
+            artifact javadocJar {
+                classifier "javadoc"
+            }
+            groupId 'io.github.samuel-davis'
+
+
+            artifactId 'nifi-api-client-java'
+            version '1.0.0'
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('url', 'https://github.com/samuel-davis/ossrh')
+                root.appendNode('description', 'Easy to use api for NIFI REST api')
+                root.appendNode('packaging', 'jar')
+                root.appendNode('name', 'nifi-api-client-java')
+                root.appendNode('url', 'https://github.com/samuel-davis/ossrh')
+                root.children().last() + pomConfig
+            }
+        }
+    }
+}
+
+bintray {
+    user = 'codehounded'
+    key = jcenter_api
+
+    publications = ['mavenPublication']
+
+    pkg {
+        repo = 'open'
+        name = 'nifi-api-client-java'
+        userOrg = 'OpenSource'
+        licenses = ['Apache-2.0']
+        vcsUrl = 'https://github.com/samuel-davis/ossrh.git'
+        //issueTrackerUrl = 'https://github.com/bintray/bintray-examples/issues'
+        publicDownloadNumbers = true
+
+        version {
+            name = '1.0.0'
+            desc = '1.0.0'
+            released  = new Date()
+
+            mavenCentralSync {
+                sync = true //Optional (true by default). Determines whether to sync the version to Maven Central.
+                user = ossrhUsername //OSS user token
+                password = ossrhPassword //OSS user password
+                close = '1' //Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
+            }
+        }
+    }
+
 }
 
 // Build, sign, and upload
