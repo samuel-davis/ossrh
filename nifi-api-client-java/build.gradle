@@ -104,3 +104,7 @@ uploadArchives {
         }
     }
 }
+
+clean {
+    delete new File("$projectDir/target")
+}
