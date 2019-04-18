@@ -74,8 +74,8 @@ dependencies {
 
 def pomConfig = {
     scm {
-        connection 'scm:git:git://github.com/samuel-davis/ossrh.git'
-        developerConnection 'scm:git:git@github.com:samuel-davis/ossrh.git'
+        //connection 'scm:git:git://github.com/samuel-davis/ossrh.git'
+        //developerConnection 'scm:git:git@github.com:samuel-davis/ossrh.git'
         url 'https://github.com/samuel-davis/ossrh'
     }
 
@@ -115,7 +115,6 @@ publishing {
             version '1.0.0'
             pom.withXml {
                 def root = asNode()
-                root.appendNode('url', 'https://github.com/samuel-davis/ossrh')
                 root.appendNode('description', 'Easy to use api for NIFI REST api')
                 root.appendNode('packaging', 'jar')
                 root.appendNode('name', 'nifi-api-client-java')
@@ -131,21 +130,27 @@ bintray {
     key = jcenter_api
 
     publications = ['mavenPublication']
-
+    override = true
+    publish = true
     pkg {
         repo = 'open'
         name = 'nifi-api-client-java'
-        userOrg = 'OpenSource'
+        userOrg = 'codehounded'
         licenses = ['Apache-2.0']
         vcsUrl = 'https://github.com/samuel-davis/ossrh.git'
         //issueTrackerUrl = 'https://github.com/bintray/bintray-examples/issues'
         publicDownloadNumbers = true
 
         version {
-            name = '1.0.0'
-            desc = '1.0.0'
+            name = '1.0.4'
+            //desc = '1.0.4'
             released  = new Date()
 
+
+            gpg {
+                sign = true //Determines whether to GPG sign the files. The default is false
+                passphrase = gpg_password //Optional. The passphrase for GPG signing'
+            }
             mavenCentralSync {
                 sync = true //Optional (true by default). Determines whether to sync the version to Maven Central.
                 user = ossrhUsername //OSS user token
