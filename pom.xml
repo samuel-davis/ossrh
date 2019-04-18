@@ -4,7 +4,7 @@
   <groupId>io.github.samuel-davis</groupId>
   <artifactId>ossrh</artifactId>
   <packaging>pom</packaging>
-  <version>1.0.0</version>
+  <version>1.0.0-SNAPSHOT</version>
 
   <modules>
     <module>nifi-api-client-java</module>
