@@ -3,7 +3,7 @@
 
 
   <groupId>io.github.samuel-davis</groupId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.1</version>
   <artifactId>nifi-api-client-java</artifactId>
   <packaging>jar</packaging>
   <name>nifi-api-client-java</name>
@@ -12,7 +12,7 @@
     <connection>scm:git:git://github.com/samuel-davis/ossrh.git</connection>
     <developerConnection>scm:git:ssh://github.com:samuel-davis/ossrh.git</developerConnection>
     <url>http://github.com/samuel-davis/ossrh</url>
-    <tag>HEAD</tag>
+    <tag>nifi-api-client-java-1.0.1</tag>
   </scm>
   <prerequisites>
     <maven>2.2.0</maven>
