@@ -1,9 +1,192 @@
-allprojects {
-    apply plugin: 'base'
+buildscript {
     repositories {
-        jcenter()
         mavenLocal()
-        mavenCentral()
-        google()
+        jcenter()
+    }
+    dependencies {
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4"
+    }
+}
+
+
+group = 'io.github.samuel-davis'
+
+import java.text.SimpleDateFormat
+
+def globalVersion = new Version(currentVersion)
+
+allprojects {
+    repositories {
+        mavenLocal()
+        jcenter()
+    }
+    apply plugin: 'idea'
+    apply plugin: 'com.jfrog.bintray'
+//    configure(subprojects.findAll { new File(it.projectDir, 'src').directory }) {
+//        apply plugin: 'java'
+//    }
+    group = project.rootProject.group
+    version = globalVersion
+    status = version.status
+
+    ext.publish = true
+    bintray {
+        user = bintray_user
+        key = bintray_key
+        configurations = ['published', 'archives']
+        //publications = ['published']
+        publications = ['mavenPublication']
+        publish = project.publish
+        override = true
+        pkg {
+
+            repo = 'open'
+            name = project.name
+            userOrg = 'codehounded'
+            licenses = ['Apache-2.0']
+            websiteUrl = 'https://samuel-davis.github.io'
+            vcsUrl = 'https://github.com/samuel-davis/ossrh.git'
+            issueTrackerUrl = 'https://github.com/samuel-davis/ossrh/issues'
+            publicDownloadNumbers = true
+            githubRepo = 'samuel-davis/ossrh'
+            //attributes= ['plat': ['linux', 'osx']]
+
+            version {
+                name = project.version
+                released  = new Date()
+                //gpg {
+               //     sign = true //Determines whether to GPG sign the files. The default is false
+                    // Uses configured GPG keys in bintray
+               // }
+
+                // Its linked to Jcenter online, so it automatically propogates to Maven central
+                /*mavenCentralSync {
+                    sync = true //Optional (true by default). Determines whether to sync the version to Maven Central.
+                    user = ossrhUsername //OSS user token
+                    password = ossrhPassword //OSS user password
+                    close = '1' //Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
+                }*/
+            }
+
+        }
+    }
+}
+
+def pomConfig = {
+    scm {
+        //connection 'scm:git:git://github.com/samuel-davis/ossrh.git'
+        //developerConnection 'scm:git:git@github.com:samuel-davis/ossrh.git'
+        url 'https://github.com/samuel-davis/ossrh'
+    }
+
+    licenses {
+        license {
+            name 'The Apache License, Version 2.0'
+            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+        }
+    }
+
+    developers {
+        developer {
+            id 'sam'
+            name 'Sam Davis'
+            email 'codehounded@gmail.com'
+            organization 'OpenSource'
+            organizationUrl 'https://samuel-davis.github.io'
+        }
+    }
+
+}
+
+
+subprojects {
+    apply plugin: 'maven-publish'
+    apply plugin: 'java'
+    if (project.plugins.hasPlugin('java')) {
+        // manifest.mainAttributes(provider: 'gradle')
+        configurations {
+            published
+        }
+        dependencies {
+            testCompile 'junit:junit:4.7'
+        }
+
+        task sourceJar(type: Jar) {
+            from sourceSets.main.allSource
+            classifier = 'sources'
+        }
+        // Add Javadoc JAR and sources JAR to artifact
+        javadoc.failOnError = false
+        task javadocJar(type: Jar, dependsOn: javadoc) {
+            classifier = 'javadoc'
+            from javadoc.destinationDir
+        }
+        // Add the sourceJars to non-extractor modules
+        artifacts {
+            published sourceJar
+            published javadocJar
+        }
+        publishing {
+            publications {
+                mavenPublication(MavenPublication) {
+                    from project.components.java
+                    artifact sourceJar {
+                        classifier "sources"
+                    }
+                    artifact javadocJar {
+                        classifier "javadoc"
+                    }
+                    groupId project.rootProject.group
+                    artifactId project.name
+                    version project.rootProject.version
+                    pom.withXml {
+                        def root = asNode()
+                        root.appendNode('description', project.description)
+                        root.appendNode('packaging', 'jar')
+                        root.appendNode('name',  project.name)
+                        root.appendNode('url', 'https://github.com/samuel-davis/ossrh')
+                        root.children().last() + pomConfig
+                    }
+
+
+                }
+            }
+        }
+
+    }
+}
+
+configurations {
+    published
+}
+
+
+class Version {
+    String originalVersion
+    String thisVersion
+    String status
+    Date buildTime
+
+    Version(String versionValue) {
+        buildTime = new Date()
+        originalVersion = versionValue
+        if (originalVersion.endsWith('-SNAPSHOT')) {
+            status = 'integration'
+            thisVersion = originalVersion.substring(0, originalVersion.length() - 'SNAPSHOT'.length()) + getTimestamp()
+        } else {
+            status = 'release'
+            thisVersion = versionValue
+        }
+    }
+
+    String getTimestamp() {
+        // Convert local file timestamp to UTC
+        def format = new SimpleDateFormat('yyyyMMddHHmmss')
+        format.setCalendar(Calendar.getInstance(TimeZone.getTimeZone('UTC')));
+        return format.format(buildTime)
+    }
+
+    String toString() {
+        thisVersion
     }
 }
