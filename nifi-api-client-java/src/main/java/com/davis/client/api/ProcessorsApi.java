@@ -41,6 +41,7 @@ import java.io.IOException;
 import com.davis.client.model.ComponentStateDTO;
 import com.davis.client.model.ProcessorEntity;
 import com.davis.client.model.PropertyDescriptorEntity;
+import com.squareup.okhttp.Call;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -65,6 +66,73 @@ public class ProcessorsApi {
 
     public void setApiClient(ApiClient apiClient) {
         this.apiClient = apiClient;
+    }
+
+
+    /**
+     * Clears the state for a processor
+     *
+     * @param id The processor id. (required)
+     * @return ApiResponse&lt;ComponentStateDTO&gt;
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the
+     *     response body
+     */
+    public ApiResponse<ProcessorEntity> terminateThreads(String id) throws ApiException {
+        com.squareup.okhttp.Call call = terminateThreads(id, null, null);
+        Type localVarReturnType = new TypeToken<ProcessorEntity>() {}.getType();
+        return apiClient.execute(call, localVarReturnType);
+    }
+
+    public Call terminateThreads(String entityId, final ProgressResponseBody.ProgressListener progressListener,
+            final ProgressRequestBody.ProgressRequestListener progressRequestListener)
+            throws ApiException {
+        // create path and map variables
+        String localVarPath =
+                "/processors/{id}/threads"
+                        .replaceAll("\\{" + "id" + "\\}", apiClient.escapeString(entityId.toString()));
+
+        List<Pair> localVarQueryParams = new ArrayList<Pair>();
+
+        Map<String, String> localVarHeaderParams = new HashMap<String, String>();
+
+        Map<String, Object> localVarFormParams = new HashMap<String, Object>();
+
+        final String[] localVarAccepts = {"application/json"};
+        final String localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);
+        if (localVarAccept != null) localVarHeaderParams.put("Accept", localVarAccept);
+
+        final String[] localVarContentTypes = {"*_/_*"};
+        final String localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
+        localVarHeaderParams.put("Content-Type", localVarContentType);
+
+        if (progressListener != null) {
+            apiClient
+                    .getHttpClient()
+                    .networkInterceptors()
+                    .add(
+                            new com.squareup.okhttp.Interceptor() {
+                                @Override
+                                public com.squareup.okhttp.Response intercept(
+                                        com.squareup.okhttp.Interceptor.Chain chain) throws IOException {
+                                    com.squareup.okhttp.Response originalResponse = chain.proceed(chain.request());
+                                    return originalResponse
+                                            .newBuilder()
+                                            .body(new ProgressResponseBody(originalResponse.body(), progressListener))
+                                            .build();
+                                }
+                            });
+        }
+
+        String[] localVarAuthNames = new String[] {};
+        return apiClient.buildCall(
+                localVarPath,
+                "DELETE",
+                localVarQueryParams,
+                null,
+                localVarHeaderParams,
+                localVarFormParams,
+                localVarAuthNames,
+                progressRequestListener);
     }
 
     /* Build call for clearState */
