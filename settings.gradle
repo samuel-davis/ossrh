@@ -1,2 +1,2 @@
 rootProject.name = "ossrh"
-include 'nifi-api-client-java'
+include 'nifi-api-client'
